@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .container{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+        }
+
+        [data-tooltip-position] {
+            width: 200px;
+            height: 100px;
+            border: 1px solid black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .top {
+            position: relative;
+            top: 50px;
+        }
+
+        .left {
+            position: relative;
+            top: 250px;
+        }
+
+        .bottom {
+            position: relative;
+            top: 100px;
+        }
+
+        .right {
+            position: relative;
+            top: 350px;
+        }
+
+        .tooltip {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="top" data-tooltip-position="top" data-tooltip-text="move text at the top"></div>
+
+    <div class="left" data-tooltip-position="left" data-tooltip-text="move text at the left"></div>
+
+    <div class="bottom" data-tooltip-position="bottom" data-tooltip-text="move text at the bottom"></div>
+
+    <div class="right" data-tooltip-position="right" data-tooltip-text="move text at the right"></div>
+</div>
+
+<template id="tooltip">
+    <div class="tooltip"></div>
+</template>
+
+<script>
+    const container = document.querySelector('.container');
+    const template = document.getElementById('tooltip').content;
+    const node = template.querySelector('.tooltip');
+    const arr = document.querySelectorAll('[data-tooltip-position]');
+
+    arr.forEach(item => {
+        item.addEventListener('mouseover', () => {
+            while (item.firstChild) {
+                item.removeChild(item.firstChild);
+            }
+
+            const element = node.cloneNode();
+            const content = item.getAttribute('data-tooltip-text');
+
+            element.textContent = `${content}`;
+            item.append(element);
+            moveElement(element);
+        });
+
+        item.addEventListener('mouseout', (evt) => {
+            if (evt.relatedTarget === container) {
+                item.firstChild.remove();
+            }
+        });
+    })
+
+    function moveElement(el){
+        const parent = el.parentElement;
+        const direction = parent.getAttribute('data-tooltip-position');
+        const parentCoords = parent.getBoundingClientRect()[direction];
+        const elementCoords = el.getBoundingClientRect()[direction];
+        let position;
+
+        if (direction === 'top' || direction === 'left') {
+            position = parentCoords - elementCoords;
+        }
+        else {
+            position = elementCoords - parentCoords;
+        }
+
+        el.style[direction] = position + "px";
+    }
+
+</script>
+
+</body>
+</html>

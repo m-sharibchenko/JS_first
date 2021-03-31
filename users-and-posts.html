@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .name {
+            width: 700px;
+            background-color: lightskyblue;
+        }
+
+        .post {
+            max-width: 600px;
+            border: 1px solid black;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="content"></div>
+
+<template id="item">
+    <div class="item">
+        <p class="name"></p>
+        <ol class="posts"></ol>
+    </div>
+</template>
+
+<template id="posts">
+    <li class="post">
+        <p class="post-title"></p>
+        <p class="post-body"></p>
+    </li>
+</template>
+
+<script>
+    const content = document.querySelector('.content');
+    const templateItem = document.getElementById('item').content;
+    const nodeItem = templateItem.querySelector('.item');
+    const templatePosts = document.getElementById('posts').content;
+    const nodePosts = templatePosts.querySelector('.post');
+    const URL_USERS = 'https://jsonplaceholder.typicode.com/users';
+    const URL_POSTS = 'https://jsonplaceholder.typicode.com/posts';
+    const usersArr = [];
+    const postsArr = {};
+    const result = [];
+
+    async function fetchUser(url) {
+        try {
+            const response = await fetch(url);
+            const users = await response.json();
+
+            users.forEach(item => usersArr.push({userID: item.id, name: item.name}));
+        }
+        catch (error) {
+            console.log('error');
+        }
+    }
+
+    async function fetchPosts(url) {
+        try {
+            const response = await fetch(url);
+            const posts = await response.json();
+
+            posts.forEach(item => {
+                if (item.userId in postsArr) {
+                    postsArr[item.userId].push({title: item.title, body: item.body});
+                }
+                else {
+                    postsArr[item.userId] = [{title: item.title, body: item.body}];
+                }
+            });
+        }
+        catch (error) {
+            console.log('error');
+        }
+    }
+
+    async function getResult(data) {
+        try {
+            await Promise.all([fetchUser(URL_USERS), fetchPosts(URL_POSTS)]);
+            for (let value of Object.entries(postsArr)) {
+                let item = usersArr.find(el => el.userID.toString() === value[0])
+                item.posts = value[1];
+                data.push(item);
+            }
+        }
+        catch (error) {
+            console.log('error')
+        }
+    }
+
+    async function addUser(data) {
+        await getResult(data);
+        data.forEach(el => {
+            const item = nodeItem.cloneNode(true);
+            const name = item.querySelector('.name');
+            const posts = item.querySelector('.posts');
+            name.textContent = el.name;
+
+            el.posts.forEach(value => {
+                const post = nodePosts.cloneNode(true);
+                const postTitle = post.querySelector('.post-title');
+                postTitle.textContent = value.title
+                const postBody = post.querySelector('.post-body');
+                postBody.textContent = value.body;
+                post.append(postTitle);
+                post.append(postBody);
+                posts.append(post);
+            })
+            content.append(item);
+        })
+    }
+
+    addUser(result)
+
+</script>
+</body>
+</html>

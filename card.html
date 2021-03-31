@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #root {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .card {
+            width: 150px;
+        }
+
+        .card:not(:last-child) {
+            margin-bottom: 15px;
+
+        }
+
+        .day {
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<template id="card-template">
+    <div class="card">
+        <div class="day"></div>
+        <div class="items">
+            <div class="item0"></div>
+            <div class="item1"></div>
+            <div class="item2"></div>
+        </div>
+    </div>
+</template>
+
+<script>
+    const root = document.getElementById('root');
+    const template = document.querySelector('#card-template').content;
+
+    const cards = [
+        {day: 'monday', items: ['apple', 'juice', 'tea']},
+        {day: 'tuesday', items: ['apple', 'juice', 'tea']},
+        {day: 'wednesday', items: ['apple', 'juice', 'tea']},
+        {day: 'thursday', items: ['apple', 'juice', 'tea']}
+        ];
+
+    cards.forEach(day => renderCard(day))
+
+    function renderCard(data) {
+        const node = template.querySelector('.card')
+        const card = node.cloneNode(true);
+
+        card.querySelector('.day').textContent = data.day;
+        card.querySelector('.item0').textContent = data.items[0];
+        card.querySelector('.item1').textContent = data.items[1];
+        card.querySelector('.item2').textContent = data.items[2];
+
+        root.appendChild(card)
+    }
+</script>
+</body>
+</html>

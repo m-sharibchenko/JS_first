@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .form{
+            margin-bottom: 30px;
+        }
+
+        .field input {
+            min-width: 300px;
+        }
+
+        .fields-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .table {
+            min-width: 400px;
+            border: 1px solid black;
+            border-collapse: collapse;
+            margin-right: 20px;
+        }
+
+        .table-head {
+            background-color: lightskyblue;
+        }
+
+        th {
+            border: 1px solid black;
+            text-align: center;
+        }
+
+        td {
+            border: 1px solid black;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .form-data{
+            display: flex;
+        }
+
+        .clear-table-btn{
+            max-height: 30px;
+        }
+    </style>
+</head>
+<body>
+<form name="form" class="form">
+    <div class="fields-wrapper">
+        <fieldset class="field name">
+            <legend>Name must be between 10 and 30 characters long</legend>
+            <label for="name">Name:</label>
+            <input type="text" id="name"/>
+        </fieldset>
+
+        <fieldset class="field age">
+            <legend>Age must be over 18 y.o.</legend>
+            <label for="age">Age:</label>
+            <input type="text" id="age"/>
+        </fieldset>
+    </div>
+
+    <div>
+        <button type="submit" id="submit">Submit</button>
+        <button type="reset">Reset</button>
+    </div>
+</form>
+
+<div class="form-data">
+    <table class="table">
+        <thead class="table-head">
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+
+        <tbody class="table-body"></tbody>
+    </table>
+
+    <button class="clear-table-btn">Clear table</button>
+</div>
+
+<script>
+    const form = document.querySelector('[name = "form"]');
+    const name = form.querySelector('#name');
+    const age = form.querySelector('#age');
+    const tbody = document.querySelector('.table-body');
+    const clearTable = document.querySelector('.clear-table-btn');
+
+    const validValue = {
+        minAge: 18,
+        maxAge: 99,
+        minNameLength: 10,
+        maxNameLength: 30
+    }
+
+    let dataArray = localStorage.getItem("validData") ?
+        JSON.parse(localStorage.getItem("validData")) : [];
+
+    dataArray.forEach(item => addData(item.name, item.age));
+
+    function createError(text) {
+        const error = document.createElement('div');
+        error.className = 'error';
+        error.textContent = text;
+        return error;
+    }
+
+    function removeOldErrors() {
+        const errors = document.querySelectorAll('.error');
+        for (let i = 0; i < errors.length; i++) {
+            errors[i].remove();
+        }
+    }
+
+    function checkFieldsValues() {
+        const errorName = createError('Invalid name');
+        const errorAge = createError('Invalid age');
+
+        switch (true) {
+            case (name.value.length < validValue.minNameLength
+                || name.value.length > validValue.maxNameLength)
+            && (age.value.search(/[^0-9]/) !== -1
+                || +age.value < validValue.minAge || +age.value > validValue.maxAge):
+                name.parentElement.append(errorName);
+                age.parentElement.append(errorAge);
+                break;
+            case name.value.length < validValue.minNameLength
+                || name.value.length > validValue.maxNameLength:
+                name.parentElement.append(errorName);
+                break;
+            case age.value.search(/[^0-9]/) !== -1:
+            case +age.value < validValue.minAge || +age.value > validValue.maxAge:
+                age.parentElement.append(errorAge);
+                break;
+            default:
+                addData(name.value, age.value);
+                dataArray.push({name: name.value, age: age.value});
+                localStorage.setItem("validData", JSON.stringify(dataArray));
+        }
+    }
+
+    function addData(name, age) {
+        const row = document.createElement('tr');
+        tbody.append(row);
+
+        const td1 = document.createElement('td');
+        const td2 = document.createElement('td');
+        td1.textContent = name;
+        td2.textContent = age;
+
+        row.append(td1);
+        row.append(td2);
+    }
+
+    form.addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        removeOldErrors();
+        checkFieldsValues();
+    })
+
+    form.addEventListener('reset', function () {
+        removeOldErrors();
+    })
+
+    clearTable.addEventListener('click', function () {
+        localStorage.clear();
+        while (tbody.firstChild) {
+            tbody.removeChild(tbody.firstChild)
+        }
+    })
+</script>
+
+</body>
+</html>
