@@ -1,1 +1,1 @@
-The first project with JS on the course.
+The first usage JS on the course.
